@@ -2,6 +2,17 @@ const fs = require('fs');
 const path = require('path');
 const router = require('express').Router();
 
+function generateId() {
+    let result = "";
+    let hex = "abcdef123456";
+    for (let i = 0; i < 20; i++) {
+      let randomIndex = Math.floor(Math.random() * hex.length);
+      result += hex[randomIndex];
+    }
+  
+    return result;
+  }
+
 fs.readFile("db/db.json", "utf8", (err, data) => {
 
     if (err) throw err;
@@ -14,8 +25,10 @@ fs.readFile("db/db.json", "utf8", (err, data) => {
 
     router.post("/api/notes", function (req, res) {
         let newNote = req.body;
+        req.body.id = generateId();
         notes.push(newNote);
         updateDb();
+        res.json(notes);
         return console.log("Added new note: " + newNote.title);
     });
 
@@ -27,6 +40,7 @@ fs.readFile("db/db.json", "utf8", (err, data) => {
     router.delete("/api/notes/:id", function (req, res) {
         notes.splice(req.params.id, 1);
         updateDb();
+        res.json(notes);
         console.log("Deleted note with id " + req.params.id);
     });
 
